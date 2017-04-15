@@ -13,6 +13,7 @@ public interface DbConsts {
     String TYPE_TEXT = " TEXT ";
     String TYPE_PK = " PRIMARY KEY ";
     String TYPE_AI = " AUTOINCREMENT " ;
+    String TYPE_BOOL = " BOOLEAN ";
     String SEMICOLON = " ; ";
 
 }

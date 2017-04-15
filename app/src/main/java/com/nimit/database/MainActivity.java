@@ -11,14 +11,16 @@ import android.widget.ListView;
 
 import com.nimit.database.db.MyDatabaseHelper;
 import com.nimit.database.db.tables.TodoTable;
+import com.nimit.database.model.Todo;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     private EditText newTodo;
     private ListView lvTodo;
-    ArrayList<String> todo = new ArrayList<>();
+    ArrayList<Todo> todo = new ArrayList<>();
     private Button addTodo;
+    SQLiteDatabase db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,22 +30,35 @@ public class MainActivity extends AppCompatActivity {
         addTodo = (Button) findViewById(R.id.lvAddButton);
 
         MyDatabaseHelper dbHelper = new MyDatabaseHelper(this);
-        final SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db = dbHelper.getWritableDatabase();
 
-        todo = TodoTable.fetchTodo(db);
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+        todo = refreashList(db);
+        /*final ArrayAdapter<String> adapter = new ArrayAdapter<String>(
                                             this,
                                             android.R.layout.simple_list_item_1,
                                             android.R.id.text1,
-                                            todo) ;
+                                            todo) ;*/
+        final TodoListAdapter adapter = new TodoListAdapter(this, todo);
         lvTodo.setAdapter(adapter);
         addTodo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                todo.add(newTodo.getText().toString());
-                adapter.notifyDataSetChanged();
-                TodoTable.addTAsk(db,newTodo.getText().toString() );
+
+                Todo temp = new Todo(newTodo.getText().toString(), false);
+                //todo.add(temp);
+                //adapter.notifyDataSetChanged();
+                //TodoTable.addTAsk(db, temp );
+                TodoTable.addTAsk(db, temp);
+                todo = refreashList(db);
+                adapter.update(todo);
             }
         });
+    }
+    ArrayList<Todo> refreashList(SQLiteDatabase db){
+        return TodoTable.fetchTodo(db);
+    }
+    void setTodoDone(Todo todoDone) {
+        TodoTable.setDone(db, todoDone);
+        refreashList(db);
     }
 }
